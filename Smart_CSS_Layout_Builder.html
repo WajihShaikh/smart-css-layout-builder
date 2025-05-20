@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart CSS Layout Builder</title>
+  <!-- Inter font for crisp modern UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" href="Favicon.png" type="image/png">
+
+  <style>
+    :root {
+      --accent: #4f46e5;
+      --accent-hover: #3730a3;
+      --bg: #f9fafb;
+      --fg: #111827;
+      --code-bg: #1e1e1e;
+      --code-fg: #d4d4d4;
+      --panel-radius: 6px;
+      --gap: 1rem;
+      --border-color: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+        #app {
+      /* Full height of viewport or parent container */
+      height: 100%;
+      /* Gradient background */
+      background: linear-gradient(-45deg, #ee7752, #00d0ff, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      /* Animation */
+      animation: gradientAnimation 2s ease infinite;
+      /* Overlay effect via pseudo-element */
+      position: relative;
+    }
+
+    /* Optional contrast overlay using pseudo-element */
+    #app::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+    }
+
+    /* Keyframes for smooth gradient transition */
+    @keyframes gradientAnimation {
+      0% { background-position:   0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Sidebar */
+    .sidebar {
+      padding: var(--gap);
+      overflow-y: auto;
+      border-right: 1px solid var(--border-color);
+      background: white;
+      height: 100vh;
+      z-index: 1;
+    }
+    .sidebar h1 {
+      font-size: 1.5rem;
+      margin-bottom: var(--gap);
+      color: var(--accent);
+    }
+    .control-group {
+      margin-bottom: 1rem;
+    }
+    .control-group label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .control-group input[type="number"],
+    .control-group input[type="text"],
+    .control-group select,
+    .control-group input[type="color"],
+    .control-group input[type="range"] {
+      width: 100%;
+      padding: 0.4rem;
+      border: 1px solid #d1d5db;
+      border-radius: var(--panel-radius);
+      font-size: 0.9rem;
+    }
+    .control-group input[type="range"] {
+      padding: 0;
+    }
+    .control-group input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+    .range-value {
+      display: inline-block;
+      margin-left: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .mode-switch {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    button {
+      padding: 0.5rem 0.75rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--panel-radius);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: var(--accent-hover);
+    }
+    .btn-block {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      margin-bottom: var(--gap);
+    }
+    .btn-copy {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      z-index: 5;
+    }
+    .code-panel {
+      margin-bottom: var(--gap);
+      position: relative;
+    }
+    .code-panel h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-panel pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      padding: var(--gap);
+      border-radius: var(--panel-radius);
+      overflow-x: auto;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      position: relative;
+    }
+    .code-panel code {
+      font-family: inherit;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0 0.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 1.1rem;
+    }
+    .toggle-section {
+      background: none;
+      color: var(--accent);
+      font-size: 1rem;
+      padding: 0.2rem 0.5rem;
+    }
+    
+    /* Tabs for the sidebar sections */
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--fg);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .tab.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Main preview area */
+    .main {
+      padding: var(--gap);
+      overflow: auto;
+      height: 100vh;
+      z-index: 1;
+    }
+    .main h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+    .preview {
+      margin-top: var(--gap);
+      padding: var(--gap);
+      border: 2px dashed #d1d5db;
+      border-radius: var(--panel-radius);
+      background: white;
+      min-height: calc(100% - 4rem);
+      position: relative;
+      overflow: auto;
+    }
+    .preview-size {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.8rem;
+      color: #64748b;
+      background: rgba(255,255,255,0.8);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+    
+    /* Responsive preview controls */
+    .responsive-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .device-btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      background: #f3f4f6;
+      color: var(--fg);
+    }
+    .device-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    /* Layout explanation */
+    .explanation {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f3f4f6;
+      border-radius: var(--panel-radius);
+      font-size: 0.9rem;
+    }
+    .explanation h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    .property-explanation {
+      margin-bottom: 0.5rem;
+    }
+    .property-name {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* Collapsible sections */
+    .section-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .section-content.collapsed {
+      max-height: 0;
+    }
+    
+    /* Dialog for saved layouts */
+    dialog {
+      border: 1px solid var(--border-color);
+      border-radius: var(--panel-radius);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 500px;
+    }
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .dialog-close {
+      background: none;
+      color: var(--fg);
+      font-size: 1.5rem;
+      padding: 0;
+      cursor: pointer;
+    }
+    .saved-layout {
+      border: 1px solid var(--border-color);
+      border-radius: var(--panel-radius);
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+    }
+    .saved-layout:hover {
+      background: #f3f4f6;
+    }
+    .saved-layout-title {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    .saved-layout-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* Help tooltips */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-left: 0.25rem;
+      color: var(--accent);
+      cursor: help;
+    }
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 0.5rem;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.8rem;
+      font-weight: normal;
+    }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* The actual layout container & items */
+    .layout {
+      min-height: 100px;
+    }
+    .layout-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      min-height: 40px;
+      min-width: 40px;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .main {
+        height: auto;
+      }
+      .sidebar {
+        height: auto;
+        max-height: 50vh;
+      }
+      .preview {
+        min-height: 300px;
+      }
+    }
+    
+    /* Toggle for mobile view */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 100;
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    @media (max-width: 900px) {
+      .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+    .hide-on-mobile {
+      display: block;
+    }
+    @media (max-width: 900px) {
+      .hide-on-mobile {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Sidebar with controls -->
+    <aside class="sidebar" id="sidebar">
+      <h1>Smart CSS Layout Builder</h1>
+      
+      <!-- Tabs for organization -->
+      <div class="tabs">
+        <button class="tab active" data-tab="basic">Basic</button>
+        <button class="tab" data-tab="styles">Styling</button>
+        <button class="tab" data-tab="responsive">Responsive</button>
+        <button class="tab" data-tab="code">Code</button>
+      </div>
+      
+      <!-- Basic Tab Content -->
+      <div class="tab-content active" id="basic-tab">
+        <!-- Layout controls -->
+        <div class="section-title">
+          Layout Settings
+          <button class="toggle-section" data-section="layoutControls">↓</button>
+        </div>
+        
+        <div class="section-content" id="layoutControls">
+          <!-- Number of children -->
+          <div class="control-group">
+            <label for="children">Number of Items</label>
+            <input type="range" id="children" min="1" max="20" value="9" />
+            <span class="range-value" id="childrenValue">9</span>
+          </div>
+
+          <!-- Grid vs Flex switch -->
+          <div class="control-group">
+            <label>Layout Mode</label>
+            <div class="mode-switch">
+              <label><input type="radio" name="mode" value="grid" checked /> Grid</label>
+              <label><input type="radio" name="mode" value="flex" /> Flexbox</label>
+            </div>
+          </div>
+
+          <!-- GRID-specific -->
+          <div id="gridControls">
+            <div class="control-group">
+              <label for="rows">Rows</label>
+              <input type="range" id="rows" min="1" max="10" value="3" />
+              <span class="range-value" id="rowsValue">3</span>
+            </div>
+            <div class="control-group">
+              <label for="cols">Columns</label>
+              <input type="range" id="cols" min="1" max="10" value="3" />
+              <span class="range-value" id="colsValue">3</span>
+            </div>
+            <div class="control-group">
+              <label for="rowGap">Row Gap (px)</label>
+              <input type="range" id="rowGap" min="0" max="50" value="8" />
+              <span class="range-value" id="rowGapValue">8px</span>
+            </div>
+            <div class="control-group">
+              <label for="colGap">Column Gap (px)</label>
+              <input type="range" id="colGap" min="0" max="50" value="8" />
+              <span class="range-value" id="colGapValue">8px</span>
+            </div>
+            <div class="control-group">
+              <label for="gridAutoFlow">Grid Auto Flow
+                <span class="tooltip">?
+                  <span class="tooltip-text">Controls how the auto-placement algorithm works</span>
+                </span>
+              </label>
+              <select id="gridAutoFlow">
+                <option value="row">row</option>
+                <option value="column">column</option>
+                <option value="dense">dense</option>
+                <option value="row dense">row dense</option>
+                <option value="column dense">column dense</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="gridTemplateAreas">Use Grid Template Areas</label>
+              <input type="checkbox" id="useGridAreas" />
+            </div>
+            <div class="control-group" id="gridAreasGroup" style="display: none;">
+              <label for="gridAreas">Grid Template Areas</label>
+              <textarea id="gridAreas" rows="4" style="width: 100%; font-family: monospace;">
+"header header header"
+"sidebar main main"
+"footer footer footer"</textarea>
+              <button id="applyGridAreas" style="margin-top: 0.5rem;">Apply</button>
+            </div>
+          </div>
+
+          <!-- FLEX-specific -->
+          <div id="flexControls" style="display:none;">
+            <div class="control-group">
+              <label for="direction">Flex Direction
+                <span class="tooltip">?
+                  <span class="tooltip-text">Defines how flex items are placed in the container</span>
+                </span>
+              </label>
+              <select id="direction">
+                <option value="row">row</option>
+                <option value="row-reverse">row-reverse</option>
+                <option value="column">column</option>
+                <option value="column-reverse">column-reverse</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="justify">Justify Content
+                <span class="tooltip">?
+                  <span class="tooltip-text">Aligns items along the main axis</span>
+                </span>
+              </label>
+              <select id="justify">
+                <option value="flex-start">flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="space-between">space-between</option>
+                <option value="space-around">space-around</option>
+                <option value="space-evenly">space-evenly</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="align">Align Items
+                <span class="tooltip">?
+                  <span class="tooltip-text">Aligns items along the cross axis</span>
+                </span>
+              </label>
+              <select id="align">
+                <option value="flex-start">flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="stretch">stretch</option>
+                <option value="baseline">baseline</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="alignContent">Align Content
+                <span class="tooltip">?
+                  <span class="tooltip-text">Aligns lines of items when there's extra space in the cross-axis</span>
+                </span>
+              </label>
+              <select id="alignContent">
+                <option value="flex-start">flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="stretch">stretch</option>
+                <option value="space-between">space-between</option>
+                <option value="space-around">space-around</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="wrap">Flex Wrap
+                <span class="tooltip">?
+                  <span class="tooltip-text">Controls whether items wrap to multiple lines</span>
+                </span>
+              </label>
+              <select id="wrap">
+                <option value="nowrap">nowrap</option>
+                <option value="wrap">wrap</option>
+                <option value="wrap-reverse">wrap-reverse</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="gap">Gap (px)</label>
+              <input type="range" id="gap" min="0" max="50" value="8" />
+              <span class="range-value" id="gapValue">8px</span>
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <button id="resetLayout" style="background-color: #dc2626;">Reset Layout</button>
+          </div>
+        </div>
+        
+        <!-- Advanced Item Controls -->
+        <div class="section-title">
+          Item Settings
+          <button class="toggle-section" data-section="itemControls">↓</button>
+        </div>
+        
+        <div class="section-content" id="itemControls">
+          <div class="control-group">
+            <label for="itemSelector">Select Item</label>
+            <select id="itemSelector">
+              <option value="all">All Items</option>
+              <!-- Options will be added dynamically -->
+            </select>
+          </div>
+          
+          <!-- Flex item properties -->
+          <div id="flexItemControls" style="display:none;">
+            <div class="control-group">
+              <label for="flexGrow">Flex Grow
+                <span class="tooltip">?
+                  <span class="tooltip-text">How much the item will grow relative to other items</span>
+                </span>
+              </label>
+              <input type="range" id="flexGrow" min="0" max="5" value="0" step="1" />
+              <span class="range-value" id="flexGrowValue">0</span>
+            </div>
+            <div class="control-group">
+              <label for="flexShrink">Flex Shrink
+                <span class="tooltip">?
+                  <span class="tooltip-text">How much the item will shrink relative to other items</span>
+                </span>
+              </label>
+              <input type="range" id="flexShrink" min="0" max="5" value="1" step="1" />
+              <span class="range-value" id="flexShrinkValue">1</span>
+            </div>
+            <div class="control-group">
+              <label for="flexBasis">Flex Basis
+                <span class="tooltip">?
+                  <span class="tooltip-text">The initial size of the item before growing/shrinking</span>
+                </span>
+              </label>
+              <select id="flexBasis">
+                <option value="auto">auto</option>
+                <option value="0">0</option>
+                <option value="25%">25%</option>
+                <option value="50%">50%</option>
+                <option value="75%">75%</option>
+                <option value="100%">100%</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="alignSelf">Align Self
+                <span class="tooltip">?
+                  <span class="tooltip-text">Overrides the align-items value for this item</span>
+                </span>
+              </label>
+              <select id="alignSelf">
+                <option value="auto">auto</option>
+                <option value="flex-start">flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="stretch">stretch</option>
+                <option value="baseline">baseline</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="order">Order
+                <span class="tooltip">?
+                  <span class="tooltip-text">Controls the order in which the item appears</span>
+                </span>
+              </label>
+              <input type="range" id="order" min="-5" max="5" value="0" />
+              <span class="range-value" id="orderValue">0</span>
+            </div>
+          </div>
+          
+          <!-- Grid item properties -->
+          <div id="gridItemControls">
+            <div class="control-group">
+              <label for="gridColumnStart">Column Start</label>
+              <input type="number" id="gridColumnStart" min="1" max="10" value="auto" />
+            </div>
+            <div class="control-group">
+              <label for="gridColumnEnd">Column End</label>
+              <input type="number" id="gridColumnEnd" min="1" max="10" value="auto" />
+            </div>
+            <div class="control-group">
+              <label for="gridRowStart">Row Start</label>
+              <input type="number" id="gridRowStart" min="1" max="10" value="auto" />
+            </div>
+            <div class="control-group">
+              <label for="gridRowEnd">Row End</label>
+              <input type="number" id="gridRowEnd" min="1" max="10" value="auto" />
+            </div>
+            <div class="control-group">
+              <label for="gridArea">Grid Area (with template areas)</label>
+              <select id="gridArea">
+                <option value="auto">auto</option>
+                <option value="header">header</option>
+                <option value="sidebar">sidebar</option>
+                <option value="main">main</option>
+                <option value="footer">footer</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <button id="resetItem" style="background-color: #dc2626;">Reset Item</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Styling Tab Content -->
+      <div class="tab-content" id="styles-tab">
+        <!-- Container styling -->
+        <div class="section-title">
+          Container Styling
+          <button class="toggle-section" data-section="containerStyling">↓</button>
+        </div>
+        
+        <div class="section-content" id="containerStyling">
+          <div class="control-group">
+            <label for="contWidth">Container Width (%)</label>
+            <input type="range" id="contWidth" min="10" max="100" value="100" />
+            <span class="range-value" id="contWidthValue">100%</span>
+          </div>
+          <div class="control-group">
+            <label for="contHeight">Container Height (px)</label>
+            <input type="range" id="contHeight" min="100" max="800" value="300" />
+            <span class="range-value" id="contHeightValue">300px</span>
+          </div>
+          <div class="control-group">
+            <label for="contPadding">Container Padding (px)</label>
+            <input type="range" id="contPadding" min="0" max="50" value="16" />
+            <span class="range-value" id="contPaddingValue">16px</span>
+          </div>
+          <div class="control-group">
+            <label for="contBg">Container BG Color</label>
+            <input type="color" id="contBg" value="#ffffff" />
+          </div>
+          <div class="control-group">
+            <label for="contBorderW">Container Border Width (px)</label>
+            <input type="range" id="contBorderW" min="0" max="10" value="2" />
+            <span class="range-value" id="contBorderWValue">2px</span>
+          </div>
+          <div class="control-group">
+            <label for="contBorderC">Container Border Color</label>
+            <input type="color" id="contBorderC" value="#d1d5db" />
+          </div>
+          <div class="control-group">
+            <label for="contBorderR">Container Border Radius (px)</label>
+            <input type="range" id="contBorderR" min="0" max="50" value="6" />
+            <span class="range-value" id="contBorderRValue">6px</span>
+          </div>
+        </div>
+
+        <!-- Item styling -->
+        <div class="section-title">
+          Item Styling
+          <button class="toggle-section" data-section="itemStyling">↓</button>
+        </div>
+        
+        <div class="section-content" id="itemStyling">
+          <div class="control-group">
+            <label for="itemBg">Item BG Color</label>
+            <input type="color" id="itemBg" value="#f3f4f6" />
+          </div>
+          <div class="control-group">
+            <label for="itemBorderW">Item Border Width (px)</label>
+            <input type="range" id="itemBorderW" min="0" max="10" value="2" />
+            <span class="range-value" id="itemBorderWValue">2px</span>
+          </div>
+          <div class="control-group">
+            <label for="itemBorderC">Item Border Color</label>
+            <input type="color" id="itemBorderC" value="#4f46e5" />
+          </div>
+          <div class="control-group">
+            <label for="itemBorderR">Item Border Radius (px)</label>
+            <input type="range" id="itemBorderR" min="0" max="50" value="6" />
+            <span class="range-value" id="itemBorderRValue">6px</span>
+          </div>
+          <div class="control-group">
+            <label for="itemPad">Item Padding (px)</label>
+            <input type="range" id="itemPad" min="0" max="50" value="8" />
+            <span class="range-value" id="itemPadValue">8px</span>
+          </div>
+          <div class="control-group">
+            <label for="itemFontSz">Item Font-Size (px)</label>
+            <input type="range" id="itemFontSz" min="10" max="40" value="16" />
+            <span class="range-value" id="itemFontSzValue">16px</span>
+          </div>
+          <div class="control-group">
+            <label for="itemTextC">Item Text Color</label>
+            <input type="color" id="itemTextC" value="#111827" />
+          </div>
+          <div class="control-group">
+            <label for="itemWidth">Item Width (px, optional)</label>
+            <input type="number" id="itemWidth" placeholder="auto" />
+          </div>
+          <div class="control-group">
+            <label for="itemHeight">Item Height (px, optional)</label>
+            <input type="number" id="itemHeight" placeholder="auto" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Responsive Tab Content -->
+      <div class="tab-content" id="responsive-tab">
+        <div class="section-title">
+          Responsive Breakpoints
+          <button class="toggle-section" data-section="breakpointSettings">↓</button>
+        </div>
+        
+        <div class="section-content" id="breakpointSettings">
+          <div class="control-group">
+            <label for="enableResponsive">Enable Responsive Layout</label>
+            <input type="checkbox" id="enableResponsive" />
+          </div>
+          
+          <div id="responsiveControls" style="display:none;">
+            <div class="control-group">
+              <label for="breakpointSelect">Select Breakpoint</label>
+              <select id="breakpointSelect">
+                <option value="default">Default (>1024px)</option>
+                <option value="tablet">Tablet (768px-1024px)</option>
+                <option value="mobile">Mobile (<768px)</option>
+              </select>
+            </div>
+            
+            <div class="control-group">
+              <label>Current Editing: <span id="currentBreakpoint" style="color:var(--accent);font-weight:600;">Default</span></label>
+              <p style="font-size:0.85rem;margin-top:0.25rem;">Settings made in the Basic and Styling tabs will apply to the currently selected breakpoint.</p>
+            </div>
+            
+            <div class="control-group">
+              <label for="previewDeviceWidth">Preview Device Width</label>
+              <select id="previewDeviceWidth">
+                <option value="100%">Full Width</option>
+                <option value="1024px">Laptop (1024px)</option>
+                <option value="768px">Tablet (768px)</option>
+                <option value="425px">Mobile L (425px)</option>
+                <option value="375px">Mobile M (375px)</option>
+                <option value="320px">Mobile S (320px)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">
+          Media Queries
+          <button class="toggle-section" data-section="mediaQuerySettings">↓</button>
+        </div>
+        
+        <div class="section-content" id="mediaQuerySettings">
+          <div class="control-group">
+            <label>Media Query CSS</label>
+            <pre id="mediaQueryCode" style="background:#f3f4f6;padding:0.75rem;font-size:0.8rem;border-radius:var(--panel-radius);white-space:pre-wrap;overflow:auto;">/* No responsive settings enabled */</pre>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Code Tab Content -->
+      <div class="tab-content" id="code-tab">
+        <!-- Code panels -->
+        <div class="code-panel">
+          <h2>CSS</h2>
+          <button class="btn-copy" data-target="cssCode">Copy</button>
+          <pre id="cssCode"></pre>
+        </div>
+        <div class="code-panel">
+          <h2>HTML</h2>
+          <button class="btn-copy" data-target="htmlCode">Copy</button>
+          <pre id="htmlCode"></pre>
+        </div>
+      </div>
+      
+      <!-- Save and share layout -->
+      <div class="section-title">
+        Save & Share
+      </div>
+      
+      <div class="control-group">
+        <label for="layoutName">Layout Name</label>
+        <input type="text" id="layoutName" placeholder="My Awesome Layout" />
+      </div>
+      
+      <div style="display: flex; gap: 0.5rem; margin-bottom: var(--gap);">
+        <button id="saveLayout" style="flex: 1;">Save Layout</button>
+        <button id="loadLayout" style="flex: 1;">Load Layout</button>
+      </div>
+    </aside>
+
+    <!-- Live preview -->
+    <section class="main">
+      <h2>
+        Live Preview
+        <div class="responsive-controls">
+          <button class="device-btn active" data-width="100%">Full</button>
+          <button class="device-btn" data-width="1024px">Laptop</button>
+          <button class="device-btn" data-width="768px">Tablet</button>
+          <button class="device-btn" data-width="425px">Mobile</button>
+        </div>
+      </h2>
+      <div class="preview">
+        <div class="preview-size" id="previewSize">100% × auto</div>
+        <section class="layout"></section>
+      </div>
+      
+      <div class="explanation" id="layoutExplanation">
+        <h3>Layout Explanation</h3>
+        <div id="explanationContent">
+          <p>Select a layout mode and adjust the settings to see how CSS Grid and Flexbox work.</p>
+        </div>
+      </div>
+      <!-- Footer HTML -->
+<footer class="modern-footer">
+  <p>
+    &copy; 2025 
+    <a href="https://www.linkedin.com/in/wajihshaikh01/" target="_blank">Wajih Shaikh</a>
+    | CSS Layout Generator
+  </p>
+</footer>
+
+<!-- Footer CSS -->
+<style>
+  .modern-footer {
+    background: #f3f4f6;
+    color: #000000;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.95rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 3rem;
+    border-radius: 7px;
+
+  }
+
+  .modern-footer a {
+    color: #4f46e5;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .modern-footer a:hover {
+    color: #1e90ff;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 600px) {
+    .modern-footer {
+      font-size: 0.85rem;
+      padding: 0.75rem;
+    }
+  }
+</style>
+
+    </section>
+  </div>
+  
+  <!-- Saved layouts dialog -->
+  <dialog id="savedLayoutsDialog">
+    <div class="dialog-header">
+      <h2>Saved Layouts</h2>
+      <button class="dialog-close" id="closeDialog">×</button>
+    </div>
+    <div id="savedLayoutsList">
+      <!-- Saved layouts will be displayed here -->
+      <p id="noSavedLayouts">No saved layouts yet. Create and save a layout to see it here.</p>
+    </div>
+  </dialog>
+  
+  <!-- Mobile sidebar toggle -->
+  <button class="sidebar-toggle" id="sidebarToggle">⚙️</button>
+
+  <script>
+    // DOM Elements
+    const app = document.getElementById('app');
+    const sidebar = document.getElementById('sidebar');
+    const modeRadios = document.querySelectorAll('input[name="mode"]');
+    const gridControls = document.getElementById('gridControls');
+    const flexControls = document.getElementById('flexControls');
+    const gridItemControls = document.getElementById('gridItemControls');
+    const flexItemControls = document.getElementById('flexItemControls');
+    const useGridAreas = document.getElementById('useGridAreas');
+    const gridAreasGroup = document.getElementById('gridAreasGroup');
+    const itemSelector = document.getElementById('itemSelector');
+    const savedLayoutsDialog = document.getElementById('savedLayoutsDialog');
+    
+    // Breakpoints and settings
+    const breakpoints = ['default', 'tablet', 'mobile'];
+    let settings = {
+      default: {},
+      tablet: {},
+      mobile: {}
+    };
+    let currentBreakpoint = 'default';
+
+    // Function to store a setting for the current breakpoint
+    function storeSetting(key, value) {
+      if (!settings[currentBreakpoint]) {
+        settings[currentBreakpoint] = {};
+      }
+      settings[currentBreakpoint][key] = value;
+      
+      // Update visual indicator
+      const element = document.getElementById(key);
+      if (element) {
+        const controlGroup = element.closest('.control-group');
+        if (controlGroup) {
+          if (currentBreakpoint !== 'default') {
+            controlGroup.classList.add('has-breakpoint-value');
+            controlGroup.setAttribute('data-breakpoint', currentBreakpoint);
+          } else {
+            controlGroup.classList.remove('has-breakpoint-value');
+            controlGroup.removeAttribute('data-breakpoint');
+          }
+        }
+      }
+    }
+
+    // Function to get a setting value for the current breakpoint
+    function getSetting(key) {
+      if (settings[currentBreakpoint] && settings[currentBreakpoint][key] !== undefined) {
+        return settings[currentBreakpoint][key];
+      }
+      return settings.default[key];
+    }
+
+    // Update the breakpoint select handler
+    document.getElementById('breakpointSelect').addEventListener('change', function() {
+      const newBreakpoint = this.value;
+      document.getElementById('currentBreakpoint').textContent = this.options[this.selectedIndex].text;
+      
+      // Store current settings before switching
+      if (currentBreakpoint !== newBreakpoint) {
+        // Save all current input values to the current breakpoint
+        document.querySelectorAll('input, select').forEach(input => {
+          if (input.id && input.value !== undefined) {
+            storeSetting(input.id, input.value);
+          }
+        });
+        
+        // Switch breakpoint
+        currentBreakpoint = newBreakpoint;
+        
+        // Load settings for the new breakpoint
+        document.querySelectorAll('input, select').forEach(input => {
+          if (input.id) {
+            const value = getSetting(input.id);
+            if (value !== undefined) {
+              input.value = value;
+              // Update any associated value displays
+              const valueDisplay = document.getElementById(`${input.id}Value`);
+              if (valueDisplay) {
+                const suffix = input.id.includes('FontSz') || input.id.includes('Gap') || 
+                              input.id.includes('Padding') || input.id.includes('BorderW') || 
+                              input.id.includes('BorderR') || input.id.includes('Height') ||
+                              input.id.includes('Width') ? 'px' : '';
+                valueDisplay.textContent = `${value}${suffix}`;
+              }
+            }
+          }
+        });
+        
+        // Update visual indicators
+        document.querySelectorAll('.control-group').forEach(group => {
+          const input = group.querySelector('input, select');
+          if (input && input.id) {
+            if (settings[currentBreakpoint] && settings[currentBreakpoint][input.id] !== undefined) {
+              group.classList.add('has-breakpoint-value');
+              group.setAttribute('data-breakpoint', currentBreakpoint);
+            } else {
+              group.classList.remove('has-breakpoint-value');
+              group.removeAttribute('data-breakpoint');
+            }
+          }
+        });
+        
+        generate();
+      }
+    });
+
+    // Add CSS for breakpoint indicators
+    const style = document.createElement('style');
+    style.textContent = `
+      .control-group.has-breakpoint-value {
+        position: relative;
+      }
+      .control-group.has-breakpoint-value::before {
+        content: attr(data-breakpoint);
+        position: absolute;
+        top: -8px;
+        right: 0;
+        font-size: 0.7rem;
+        padding: 2px 4px;
+        background: var(--accent);
+        color: white;
+        border-radius: 3px;
+        text-transform: uppercase;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Range value display
+    document.querySelectorAll('input[type="range"]').forEach(range => {
+      const valueDisplay = document.getElementById(`${range.id}Value`);
+      if (valueDisplay) {
+        // Update initial value
+        const suffix = range.id.includes('FontSz') || range.id.includes('Gap') || 
+                       range.id.includes('Padding') || range.id.includes('BorderW') || 
+                       range.id.includes('BorderR') || range.id.includes('Height') ||
+                       range.id.includes('Width') ? 'px' : '';
+        valueDisplay.textContent = `${range.value}${suffix}`;
+        
+        // Add event listener for changes
+        range.addEventListener('input', () => {
+          valueDisplay.textContent = `${range.value}${suffix}`;
+          generate();
+        });
+      }
+    });
+    
+    // Tab navigation
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+      });
+    });
+    
+    // Section toggle
+    const toggleButtons = document.querySelectorAll('.toggle-section');
+    toggleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sectionId = btn.dataset.section;
+        const section = document.getElementById(sectionId);
+        section.classList.toggle('collapsed');
+        btn.textContent = section.classList.contains('collapsed') ? '↑' : '↓';
+      });
+    });
+    
+    // Mode switch (Grid vs Flex)
+    modeRadios.forEach(r => r.addEventListener('change', () => {
+      if (r.checked && r.value === 'grid') {
+        gridControls.style.display = '';
+        flexControls.style.display = 'none';
+        gridItemControls.style.display = '';
+        flexItemControls.style.display = 'none';
+        updateExplanation('grid');
+      }
+      if (r.checked && r.value === 'flex') {
+        gridControls.style.display = 'none';
+        flexControls.style.display = '';
+        gridItemControls.style.display = 'none';
+        flexItemControls.style.display = '';
+        updateExplanation('flex');
+      }
+      generate();
+    }));
+    
+    // Grid template areas toggle
+    useGridAreas.addEventListener('change', () => {
+      gridAreasGroup.style.display = useGridAreas.checked ? '' : 'none';
+      generate();
+    });
+    
+    // Apply grid areas button
+    document.getElementById('applyGridAreas').addEventListener('click', () => {
+      generate();
+    });
+    
+    // Mobile sidebar toggle
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+      sidebar.classList.toggle('hide-on-mobile');
+    });
+    
+    // Responsive preview controls
+    const deviceButtons = document.querySelectorAll('.device-btn');
+    deviceButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        deviceButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const width = btn.dataset.width;
+        document.querySelector('.preview').style.width = width;
+        document.getElementById('previewSize').textContent = `${width} × auto`;
+      });
+    });
+    
+    // Enable responsive checkbox
+    document.getElementById('enableResponsive').addEventListener('change', function() {
+      document.getElementById('responsiveControls').style.display = this.checked ? '' : 'none';
+      generate();
+    });
+    
+    // Preview device width
+    document.getElementById('previewDeviceWidth').addEventListener('change', function() {
+      document.querySelector('.preview').style.width = this.value;
+      document.getElementById('previewSize').textContent = `${this.value} × auto`;
+    });
+    
+    // Copy buttons
+    document.querySelectorAll('.btn-copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        navigator.clipboard.writeText(target.textContent)
+          .then(() => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+              btn.textContent = originalText;
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Could not copy text: ', err);
+          });
+      });
+    });
+    
+    // Save layout
+    document.getElementById('saveLayout').addEventListener('click', () => {
+      const name = document.getElementById('layoutName').value || 'Unnamed Layout';
+      const config = generateLayoutConfig();
+      const savedLayouts = JSON.parse(localStorage.getItem('heavenLayouts') || '[]');
+      savedLayouts.push({
+        name,
+        config,
+        date: new Date().toLocaleString()
+      });
+      localStorage.setItem('heavenLayouts', JSON.stringify(savedLayouts));
+      alert(`Layout "${name}" saved successfully!`);
+    });
+    
+    // Load layout
+    document.getElementById('loadLayout').addEventListener('click', () => {
+      loadSavedLayouts();
+      savedLayoutsDialog.showModal();
+    });
+    
+    // Close dialog
+    document.getElementById('closeDialog').addEventListener('click', () => {
+      savedLayoutsDialog.close();
+    });
+    
+    // Reset layout button
+    document.getElementById('resetLayout').addEventListener('click', () => {
+      if (confirm('Reset all layout settings to default?')) {
+        resetLayoutSettings();
+        generate();
+      }
+    });
+    
+    // Reset item button
+    document.getElementById('resetItem').addEventListener('click', () => {
+      resetItemSettings();
+      generate();
+    });
+    
+    // Load saved layouts into dialog
+    function loadSavedLayouts() {
+      const savedLayouts = JSON.parse(localStorage.getItem('heavenLayouts') || '[]');
+      const container = document.getElementById('savedLayoutsList');
+      const noLayouts = document.getElementById('noSavedLayouts');
+      
+      if (savedLayouts.length === 0) {
+        noLayouts.style.display = '';
+        return;
+      }
+      
+      noLayouts.style.display = 'none';
+      container.innerHTML = '';
+      
+      savedLayouts.forEach((layout, index) => {
+        const div = document.createElement('div');
+        div.className = 'saved-layout';
+        div.innerHTML = `
+          <div class="saved-layout-title">${layout.name}</div>
+          <div style="font-size:0.8rem;color:#64748b;">Saved on: ${layout.date}</div>
+          <div class="saved-layout-actions">
+            <button class="load-layout" data-index="${index}">Load</button>
+            <button class="delete-layout" data-index="${index}" style="background:#dc2626;">Delete</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      
+      // Add event listeners to load and delete buttons
+      document.querySelectorAll('.load-layout').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = btn.dataset.index;
+          const layout = savedLayouts[index];
+          loadLayoutConfig(layout.config);
+          savedLayoutsDialog.close();
+        });
+      });
+      
+      document.querySelectorAll('.delete-layout').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = btn.dataset.index;
+          if (confirm(`Delete layout "${savedLayouts[index].name}"?`)) {
+            savedLayouts.splice(index, 1);
+            localStorage.setItem('heavenLayouts', JSON.stringify(savedLayouts));
+            loadSavedLayouts();
+          }
+        });
+      });
+    }
+    
+    // Generate layout config object
+    function generateLayoutConfig() {
+      const config = {
+        settings: {
+          default: {},
+          tablet: {},
+          mobile: {}
+        }
+      };
+
+      // Collect all settings for each breakpoint
+      breakpoints.forEach(breakpoint => {
+        if (settings[breakpoint]) {
+          config.settings[breakpoint] = { ...settings[breakpoint] };
+        }
+      });
+
+      return config;
+    }
+    
+    // Load layout config
+    function loadLayoutConfig(config) {
+      if (!config || !config.settings) return;
+
+      // Load settings for each breakpoint
+      breakpoints.forEach(breakpoint => {
+        if (config.settings[breakpoint]) {
+          settings[breakpoint] = { ...config.settings[breakpoint] };
+        }
+      });
+
+      // Set current breakpoint to default
+      currentBreakpoint = 'default';
+      document.getElementById('breakpointSelect').value = 'default';
+      document.getElementById('currentBreakpoint').textContent = 'Default (>1024px)';
+
+      // Apply default settings to all inputs
+      document.querySelectorAll('input, select').forEach(input => {
+        if (input.id) {
+          const value = settings.default[input.id];
+          if (value !== undefined) {
+            input.value = value;
+            // Update any associated value displays
+            const valueDisplay = document.getElementById(`${input.id}Value`);
+            if (valueDisplay) {
+              const suffix = input.id.includes('FontSz') || input.id.includes('Gap') || 
+                            input.id.includes('Padding') || input.id.includes('BorderW') || 
+                            input.id.includes('BorderR') || input.id.includes('Height') ||
+                            input.id.includes('Width') ? 'px' : '';
+              valueDisplay.textContent = `${value}${suffix}`;
+            }
+          }
+        }
+      });
+
+      // Update visual indicators
+      document.querySelectorAll('.control-group').forEach(group => {
+        const input = group.querySelector('input, select');
+        if (input && input.id) {
+          if (settings.default[input.id] !== undefined) {
+            group.classList.remove('has-breakpoint-value');
+            group.removeAttribute('data-breakpoint');
+          }
+        }
+      });
+
+      // Update mode-specific controls
+      const mode = settings.default.mode || 'grid';
+      document.querySelector(`input[name="mode"][value="${mode}"]`).checked = true;
+      if (mode === 'grid') {
+        gridControls.style.display = '';
+        flexControls.style.display = 'none';
+        gridItemControls.style.display = '';
+        flexItemControls.style.display = 'none';
+      } else {
+        gridControls.style.display = 'none';
+        flexControls.style.display = '';
+        gridItemControls.style.display = 'none';
+        flexItemControls.style.display = '';
+      }
+
+      // Update grid areas if enabled
+      if (settings.default.useGridAreas) {
+        document.getElementById('useGridAreas').checked = true;
+        gridAreasGroup.style.display = '';
+      } else {
+        document.getElementById('useGridAreas').checked = false;
+        gridAreasGroup.style.display = 'none';
+      }
+
+      // Update the explanation
+      updateExplanation(mode);
+      
+      // Generate the layout
+      generate();
+    }
+    
+    // Reset layout settings
+    function resetLayoutSettings() {
+      // Reset all breakpoint settings
+      settings = {
+        default: {},
+        tablet: {},
+        mobile: {}
+      };
+
+      // Reset to default values
+      document.getElementById('children').value = 9;
+      document.querySelector('input[name="mode"][value="grid"]').checked = true;
+      
+      // Grid settings
+      document.getElementById('rows').value = 3;
+      document.getElementById('cols').value = 3;
+      document.getElementById('rowGap').value = 8;
+      document.getElementById('colGap').value = 8;
+      document.getElementById('gridAutoFlow').value = 'row';
+      document.getElementById('useGridAreas').checked = false;
+      
+      // Flex settings
+      document.getElementById('direction').value = 'row';
+      document.getElementById('justify').value = 'flex-start';
+      document.getElementById('align').value = 'center';
+      document.getElementById('alignContent').value = 'flex-start';
+      document.getElementById('wrap').value = 'nowrap';
+      document.getElementById('gap').value = 8;
+      
+      // Container settings
+      document.getElementById('contWidth').value = 100;
+      document.getElementById('contHeight').value = 300;
+      document.getElementById('contPadding').value = 16;
+      document.getElementById('contBg').value = '#ffffff';
+      document.getElementById('contBorderW').value = 2;
+      document.getElementById('contBorderC').value = '#d1d5db';
+      document.getElementById('contBorderR').value = 6;
+
+      // Store all default settings
+      document.querySelectorAll('input, select').forEach(input => {
+        if (input.id && input.value !== undefined) {
+          settings.default[input.id] = input.value;
+        }
+      });
+      
+      // Update range value displays
+      document.querySelectorAll('input[type="range"]').forEach(range => {
+        const valueDisplay = document.getElementById(`${range.id}Value`);
+        if (valueDisplay) {
+          const suffix = range.id.includes('FontSz') || range.id.includes('Gap') || 
+                         range.id.includes('Padding') || range.id.includes('BorderW') || 
+                         range.id.includes('BorderR') || range.id.includes('Height') ||
+                         range.id.includes('Width') ? 'px' : '';
+          valueDisplay.textContent = `${range.value}${suffix}`;
+        }
+      });
+      
+      // Hide/show controls based on mode
+      gridControls.style.display = '';
+      flexControls.style.display = 'none';
+      gridItemControls.style.display = '';
+      flexItemControls.style.display = 'none';
+      
+      // Hide grid areas
+      gridAreasGroup.style.display = 'none';
+      
+      // Update the explanation
+      updateExplanation('grid');
+
+      // Clear breakpoint indicators
+      document.querySelectorAll('.control-group').forEach(group => {
+        group.classList.remove('has-breakpoint-value');
+        group.removeAttribute('data-breakpoint');
+      });
+    }
+    
+    // Reset item settings
+    function resetItemSettings() {
+      // Reset the selected item's settings based on which mode is active
+      if (document.querySelector('input[name="mode"]:checked').value === 'grid') {
+        document.getElementById('gridColumnStart').value = 'auto';
+        document.getElementById('gridColumnEnd').value = 'auto';
+        document.getElementById('gridRowStart').value = 'auto';
+        document.getElementById('gridRowEnd').value = 'auto';
+        document.getElementById('gridArea').value = 'auto';
+      } else {
+        document.getElementById('flexGrow').value = 0;
+        document.getElementById('flexShrink').value = 1;
+        document.getElementById('flexBasis').value = 'auto';
+        document.getElementById('alignSelf').value = 'auto';
+        document.getElementById('order').value = 0;
+        
+        // Update range value displays
+        document.getElementById('flexGrowValue').textContent = '0';
+        document.getElementById('flexShrinkValue').textContent = '1';
+        document.getElementById('orderValue').textContent = '0';
+      }
+    }
+    
+    // Update the layout explanation
+    function updateExplanation(mode) {
+      const content = document.getElementById('explanationContent');
+      
+      if (mode === 'grid') {
+        content.innerHTML = `
+          <div class="property-explanation">
+            <span class="property-name">display: grid;</span> - Creates a grid container
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">grid-template-rows</span> - Defines the rows in the grid
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">grid-template-columns</span> - Defines the columns in the grid
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">gap</span> - Sets the gaps (gutters) between rows and columns
+          </div>
+        `;
+      } else {
+        content.innerHTML = `
+          <div class="property-explanation">
+            <span class="property-name">display: flex;</span> - Creates a flex container
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">flex-direction</span> - Sets the main-axis direction (row or column)
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">justify-content</span> - Aligns items along the main axis
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">align-items</span> - Aligns items along the cross axis
+          </div>
+          <div class="property-explanation">
+            <span class="property-name">flex-wrap</span> - Controls whether items wrap to a new line
+          </div>
+        `;
+      }
+    }
+    
+    // Helper function to escape HTML for code display
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    
+    // Generate layout
+    function generate() {
+      // Get current mode
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      
+      // Read values
+      const n = +document.getElementById('children').value;
+      const contW = document.getElementById('contWidth').value + '%';
+      const contH = document.getElementById('contHeight').value + 'px';
+      const contP = +document.getElementById('contPadding').value + 'px';
+      const contBg = document.getElementById('contBg').value;
+      const contBW = +document.getElementById('contBorderW').value + 'px';
+      const contBC = document.getElementById('contBorderC').value;
+      const contBR = +document.getElementById('contBorderR').value + 'px';
+      const itemBg = document.getElementById('itemBg').value;
+      const itemBW = +document.getElementById('itemBorderW').value + 'px';
+      const itemBC = document.getElementById('itemBorderC').value;
+      const itemBR = +document.getElementById('itemBorderR').value + 'px';
+      const itemPad = +document.getElementById('itemPad').value + 'px';
+      const itemFS = +document.getElementById('itemFontSz').value + 'px';
+      const itemTC = document.getElementById('itemTextC').value;
+      const itemW = document.getElementById('itemWidth').value ? document.getElementById('itemWidth').value + 'px' : 'auto';
+      const itemH = document.getElementById('itemHeight').value ? document.getElementById('itemHeight').value + 'px' : 'auto';
+      
+      // Build CSS for layout container
+      let css = `
+.layout {
+  width: ${contW};
+  height: ${contH};
+  padding: ${contP};
+  background: ${contBg};
+  border: ${contBW} solid ${contBC};
+  border-radius: ${contBR};
+`;
+      
+      // Add layout specific properties
+      if (mode === 'grid') {
+        const r = +document.getElementById('rows').value;
+        const c = +document.getElementById('cols').value;
+        const rg = +document.getElementById('rowGap').value + 'px';
+        const cg = +document.getElementById('colGap').value + 'px';
+        const autoFlow = document.getElementById('gridAutoFlow').value;
+        
+        css += `  display: grid;
+  grid-template-rows: repeat(${r}, 1fr);
+  grid-template-columns: repeat(${c}, 1fr);
+  row-gap: ${rg};
+  column-gap: ${cg};
+  grid-auto-flow: ${autoFlow};
+`;
+
+        // Add grid areas if enabled
+        if (document.getElementById('useGridAreas').checked) {
+          const areas = document.getElementById('gridAreas').value;
+          css += `  grid-template-areas: 
+    ${areas};
+`;
+        }
+      } else {
+        // Flexbox properties
+        const dir = document.getElementById('direction').value;
+        const just = document.getElementById('justify').value;
+        const ali = document.getElementById('align').value;
+        const wrap = document.getElementById('wrap').value;
+        const content = document.getElementById('alignContent').value;
+        const g = +document.getElementById('gap').value + 'px';
+        
+        css += `  display: flex;
+  flex-direction: ${dir};
+  flex-wrap: ${wrap};
+  justify-content: ${just};
+  align-items: ${ali};
+  align-content: ${content};
+  gap: ${g};
+`;
+      }
+      
+      css += `}
+
+.layout-item {
+  background: ${itemBg};
+  border: ${itemBW} solid ${itemBC};
+  border-radius: ${itemBR};
+  padding: ${itemPad};
+  font-size: ${itemFS};
+  color: ${itemTC};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${itemW};
+  height: ${itemH};
+}
+`;
+      
+      // Add individual item styles
+      const selectedItem = document.getElementById('itemSelector').value;
+      if (selectedItem !== 'all') {
+        const itemIndex = parseInt(selectedItem.replace('item', ''));
+        
+        if (mode === 'grid') {
+          const colStart = document.getElementById('gridColumnStart').value;
+          const colEnd = document.getElementById('gridColumnEnd').value;
+          const rowStart = document.getElementById('gridRowStart').value;
+          const rowEnd = document.getElementById('gridRowEnd').value;
+          const area = document.getElementById('gridArea').value;
+          
+          css += `
+.layout-item:nth-child(${itemIndex}) {
+`;
+          if (area !== 'auto' && document.getElementById('useGridAreas').checked) {
+            css += `  grid-area: ${area};
+`;
+          } else {
+            if (colStart !== 'auto') css += `  grid-column-start: ${colStart};
+`;
+            if (colEnd !== 'auto') css += `  grid-column-end: ${colEnd};
+`;
+            if (rowStart !== 'auto') css += `  grid-row-start: ${rowStart};
+`;
+            if (rowEnd !== 'auto') css += `  grid-row-end: ${rowEnd};
+`;
+          }
+          css += `}
+`;
+        } else {
+          const grow = document.getElementById('flexGrow').value;
+          const shrink = document.getElementById('flexShrink').value;
+          const basis = document.getElementById('flexBasis').value;
+          const alignSelf = document.getElementById('alignSelf').value;
+          const order = document.getElementById('order').value;
+          
+          css += `
+.layout-item:nth-child(${itemIndex}) {
+  flex-grow: ${grow};
+  flex-shrink: ${shrink};
+  flex-basis: ${basis};
+  align-self: ${alignSelf};
+  order: ${order};
+}
+`;
+        }
+      }
+      
+      // Add responsive CSS if enabled
+      if (document.getElementById('enableResponsive').checked) {
+        let mediaCss = '';
+        
+        // Tablet styles
+        if (Object.keys(settings.tablet).length > 0) {
+          mediaCss += `
+@media (max-width: 1024px) and (min-width: 768px) {
+  .layout {
+    ${generateBreakpointStyles('tablet')}
+  }
+}`;
+        }
+        
+        // Mobile styles
+        if (Object.keys(settings.mobile).length > 0) {
+          mediaCss += `
+@media (max-width: 767px) {
+  .layout {
+    ${generateBreakpointStyles('mobile')}
+  }
+}`;
+        }
+        
+        if (mediaCss) {
+          css += mediaCss;
+          document.getElementById('mediaQueryCode').textContent = mediaCss;
+        } else {
+          document.getElementById('mediaQueryCode').textContent = '/* No responsive settings enabled */';
+        }
+      } else {
+        document.getElementById('mediaQueryCode').textContent = '/* No responsive settings enabled */';
+      }
+      
+      // Build HTML
+      let html = `<section class="layout">\n`;
+      for (let i = 1; i <= n; i++) {
+        html += `  <div class="layout-item">${i}</div>\n`;
+      }
+      html += `</section>`;
+      
+      // Inject preview
+      const styleTag = document.getElementById('liveStyle') || document.createElement('style');
+      styleTag.id = 'liveStyle';
+      styleTag.textContent = css;
+      document.head.appendChild(styleTag);
+      
+      const preview = document.querySelector('.preview .layout');
+      preview.outerHTML = html;  // replace the whole section
+      
+      // Fill code panels
+      document.getElementById('cssCode').textContent = css;
+      document.getElementById('htmlCode').textContent = html;
+      
+      // Update item selector options
+      updateItemSelector(n);
+    }
+    
+    // Helper function to generate styles for a specific breakpoint
+    function generateBreakpointStyles(breakpoint) {
+      const breakpointSettings = settings[breakpoint];
+      if (!breakpointSettings) return '';
+      
+      let styles = '';
+      
+      // Add all the breakpoint-specific styles
+      if (breakpointSettings.mode) {
+        styles += `display: ${breakpointSettings.mode === 'grid' ? 'grid' : 'flex'};\n`;
+      }
+      
+      if (breakpointSettings.rows) {
+        styles += `grid-template-rows: repeat(${breakpointSettings.rows}, 1fr);\n`;
+      }
+      
+      if (breakpointSettings.cols) {
+        styles += `grid-template-columns: repeat(${breakpointSettings.cols}, 1fr);\n`;
+      }
+      
+      if (breakpointSettings.rowGap) {
+        styles += `row-gap: ${breakpointSettings.rowGap}px;\n`;
+      }
+      
+      if (breakpointSettings.colGap) {
+        styles += `column-gap: ${breakpointSettings.colGap}px;\n`;
+      }
+      
+      if (breakpointSettings.direction) {
+        styles += `flex-direction: ${breakpointSettings.direction};\n`;
+      }
+      
+      if (breakpointSettings.justify) {
+        styles += `justify-content: ${breakpointSettings.justify};\n`;
+      }
+      
+      if (breakpointSettings.align) {
+        styles += `align-items: ${breakpointSettings.align};\n`;
+      }
+      
+      if (breakpointSettings.wrap) {
+        styles += `flex-wrap: ${breakpointSettings.wrap};\n`;
+      }
+      
+      if (breakpointSettings.gap) {
+        styles += `gap: ${breakpointSettings.gap}px;\n`;
+      }
+      
+      return styles;
+    }
+    
+    // Update input handlers to store settings
+    document.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('change', () => {
+        if (input.id) {
+          storeSetting(input.id, input.value);
+          generate();
+        }
+      });
+    });
+    
+    // Update item selector options based on number of items
+    function updateItemSelector(itemCount) {
+      const selector = document.getElementById('itemSelector');
+      const currentValue = selector.value;
+      
+      // Clear existing options except "All Items"
+      while (selector.options.length > 1) {
+        selector.remove(1);
+      }
+      
+      // Add options for each item
+      for (let i = 1; i <= itemCount; i++) {
+        const option = document.createElement('option');
+        option.value = `item${i}`;
+        option.textContent = `Item ${i}`;
+        selector.appendChild(option);
+      }
+      
+      // Try to restore the previously selected value if it still exists
+      if (currentValue !== 'all') {
+        const itemNum = parseInt(currentValue.replace('item', ''));
+        if (itemNum <= itemCount) {
+          selector.value = currentValue;
+        } else {
+          selector.value = 'all';
+        }
+      }
+    }
+    
+    // Initial setup
+    resetLayoutSettings();
+    updateItemSelector(9); // Default 9 items
+    updateExplanation('grid'); // Default grid explanation
+    
+    // Item selector change event
+    itemSelector.addEventListener('change', generate);
+    
+    // All inputs/selects for auto-generate (excluding ranges which are handled separately)
+    document.querySelectorAll('.control-group input:not([type="range"]), .control-group select, #gridAreas')
+      .forEach(el => el.addEventListener('change', generate));
+    
+    // Auto-generate on page load
+    document.addEventListener('DOMContentLoaded', generate);
+  </script>
+</body>
+</html>
